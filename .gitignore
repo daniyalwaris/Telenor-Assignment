@@ -1,0 +1,39 @@
+# .NET build artifacts
+bin/
+obj/
+
+# VS Code settings
+.vscode/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Logs and debug dumps
+*.log
+*.tlog
+*.vspscc
+*.vspx
+*.pidb
+
+# Test results and screenshots
+TestResults/
+*.png
+*.jpg
+*.html
+debug.html
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# NuGet packages (optional)
+*.nupkg
+*.snupkg
+.nuget/
+
+# Rider and JetBrains IDEs
+.idea/
+*.sln.iml
