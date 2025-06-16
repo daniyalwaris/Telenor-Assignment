@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace TelenorTestAutomation.Pages
 {
-    public class HomePage
+   public class HomePage
     {
         private readonly IWebDriver driver;
         private readonly WebDriverWait wait;
@@ -17,11 +17,14 @@ namespace TelenorTestAutomation.Pages
             wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
         }
 
+        /*
+         Navigates from the homepage to the Broadband section using the Handla menu.
+        */ 
         public void NavigateToBroadband()
         {
             wait.PollingInterval = TimeSpan.FromMilliseconds(500);
 
-            // ✅ Accept cookies
+            // Accept cookies if the popup appears
             try
             {
                 var cookieAcceptBtn = wait.Until(d =>
@@ -37,21 +40,20 @@ namespace TelenorTestAutomation.Pages
                 Console.WriteLine("Cookie popup not visible, continuing...");
             }
 
-
-            // ✅ Open "Handla" or "Produkter och tjänster" menu
+            // Open "Handla" or "Produkter och tjänster" menu
             try
             {
                 var menuBtn = wait.Until(d =>
-                     d.FindElements(By.XPath("//*[contains(text(),'Handla') or contains(text(),'Produkter och tjänster')]"))
+                    d.FindElements(By.XPath("//*[contains(text(),'Handla') or contains(text(),'Produkter och tjänster')]"))
                     .FirstOrDefault());
 
                 if (menuBtn != null && menuBtn.Displayed && menuBtn.Enabled)
                 {
                     var actions = new Actions(driver);
-                    actions.MoveToElement(menuBtn).Perform();
-                    Thread.Sleep(500); // Let hover effect trigger
-                    menuBtn.Click();
-                    Thread.Sleep(500); // Let dropdown open fully
+                    actions.MoveToElement(menuBtn).Perform(); // Hover to trigger dropdown
+                    Thread.Sleep(500);
+                    menuBtn.Click(); // Open menu
+                    Thread.Sleep(500);
                 }
             }
             catch (WebDriverTimeoutException)
@@ -60,20 +62,12 @@ namespace TelenorTestAutomation.Pages
                 throw;
             }
 
-
-            // ✅ Locate and scroll to main menu
+            // Locate and click the Bredband (Broadband) link
             try
             {
-                var broadbandLink = wait.Until(d =>
-                 d.FindElements(By.XPath("//a[contains(@href, '/bredband') and contains(text(), 'Bredband')]")).FirstOrDefault());
-
-                // new Actions(driver).MoveToElement(broadbandLink).Click().Perform();  
-                var actions = new Actions(driver);
-                actions.MoveToElement(broadbandLink).Perform();
-                Thread.Sleep(500); // Let hover effect trigger
+                var broadbandLink = wait.Until(d => d.FindElements(By.XPath("(//*[contains(text(), 'Bredband')])[3]")).FirstOrDefault());
                 broadbandLink.Click();
-                Thread.Sleep(500); // Let dropdown open fully
-                
+                Thread.Sleep(500);
             }
             catch (WebDriverTimeoutException)
             {

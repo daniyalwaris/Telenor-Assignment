@@ -7,101 +7,92 @@ using System.Linq;
 namespace TelenorTestAutomation.Pages
 {
     public class BroadbandPage
+{
+    private readonly IWebDriver driver;
+    private WebDriverWait wait;
+
+    public BroadbandPage(IWebDriver webDriver)
     {
-        private readonly IWebDriver driver;
-        private WebDriverWait wait;
+        driver = webDriver;
+        wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
+    }
 
-        public BroadbandPage(IWebDriver webDriver)
-        {
-            driver = webDriver;
-            wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
-        }
-
+        /*
+         Searches for a given address, selects the first suggestion from the dropdown, and scrolls the page down.
+        */
         public void SearchAddress(string address)
         {
-            var searchInput = wait.Until(d => d.FindElement(By.CssSelector("input[placeholder*='Sök adress']")));
+            var searchInput = wait.Until(d => d.FindElement(By.XPath("//input[@placeholder='Sök adress']")));
             searchInput.Clear();
             searchInput.SendKeys(address);
-
-            // Wait for dropdown and select first match
-            wait.Until(d => d.FindElements(By.CssSelector("ul[role='listbox'] li")).Any());
+            wait.Until(d => d.FindElements(By.XPath(" //*[@data-test='address-list']")));
+            Thread.Sleep(1000);
             searchInput.SendKeys(Keys.Enter);
 
-             // ✅ Scroll down  times (natively)
+
+            // Scroll down to ensure dropdowns and grids below are interactable
             var actions = new Actions(driver);
-            actions.SendKeys(Keys.PageDown)
-                .Perform();
-        }
+            actions.SendKeys(Keys.PageDown).Perform();
+            Thread.Sleep(3000);
+    }
 
-
-
-        public void SelectRandomApartment()
-        {
-            var dropdown = wait.Until(d => d.FindElement(By.TagName("select")));
+    /*
+     Selects a random apartment number from the dropdown using keyboard navigation.
+    */
+    public void SelectRandomApartment()
+    {
+            // d is the WebDriver instance passed into the condition.
+            var dropdown = wait.Until(d => d.FindElement(By.XPath("//div[@data-test='apartment-number-select']/div/select")));
+            //   var dropdown = wait.Until(d => d.FindElement(By.TagName("select")));
+            
+            // Fetch a list of available options, from dropdown to check the length.
             var options = dropdown.FindElements(By.TagName("option")).ToList();
 
+            // Validating the length of the list.
             if (options.Count > 1)
             {
                 Random rnd = new Random();
-                int targetIndex = rnd.Next(1, options.Count);
+                int maxRange = Math.Min(30, options.Count - 1); // Ensure we don't exceed available options
+                int targetIndex = rnd.Next(1, maxRange + 1);    // +1 because upper bound is exclusive
 
-                // Focus on dropdown
-                dropdown.Click();
+                dropdown.Click(); // Open the dropdown
 
-                // Use keyboard to move to desired option
+                // Navigate via keyboard to simulate user selection
                 for (int i = 0; i < targetIndex; i++)
                 {
                     dropdown.SendKeys(Keys.ArrowDown);
-                    Thread.Sleep(100); // slight delay to simulate real key press
+                    Thread.Sleep(100); 
                 }
 
-                dropdown.SendKeys(Keys.Enter); // Confirm selection
-                Thread.Sleep(500); // Wait for backend call to trigger and page to update
+                dropdown.SendKeys(Keys.Enter); // Select
+                Thread.Sleep(1000); // Wait for product grid to update
             }
-        }
-
-        /*public void SelectRandomApartment()
-        {
-            var dropdown = wait.Until(d => d.FindElement(By.TagName("select")));
-            dropdown.Click();
-            var options = dropdown.FindElements(By.TagName("option")).ToList();
-
-            if (options.Count > 1)
-            {
-                Random rnd = new Random();
-                int index = rnd.Next(1, options.Count); // skip index 0 if it's a label
-                new SelectElement(dropdown).SelectByIndex(index);
-            }
-        }
-        */
-
-        public bool IsProductAvailable(string productName)
-        {
-            try
-            {
-                // Wait for product grid to load
-                wait.Until(d => d.FindElements(By.CssSelector("[data-test*='product-grid']")).Any());
-
-                var allProductsText = driver
-                    .FindElements(By.CssSelector("[data-test*='product-grid']"))
-                    .Select(p => p.Text.ToLower());
-
-                Console.WriteLine("Products found:");
-                foreach (var product in allProductsText)
-                {
-                    Console.WriteLine(" - " + product);
-                }
-
-                return allProductsText.Any(t => t.Contains(productName.ToLower()));
-            }
-            catch (WebDriverTimeoutException)
-            {
-                Console.WriteLine("❌ Timed out waiting for product cards to load.");
-                return false;
-            }
-        }
-
     }
+
+    
+    // Checks if a product with the specified name is available on the broadband page.
+    public bool IsProductAvailable(string productName)
+    {
+        try
+        {
+            //  Explicit Wait for the product grid to be populated
+            // d is the WebDriver instance passed into the condition.
+            wait.Until(d => d.FindElements(By.CssSelector("[data-test*='product-grid']")).Any());
+
+            // Multi select , to retrieve all the text from listed products.
+            // Where as p is the tag in html to define the text
+            var allProductsText = driver.FindElements(By.CssSelector("[data-test*='product-grid']"))
+            .Select(p => p.Text.ToLower());
+
+            return allProductsText.Any(t => t.Contains(productName.ToLower()));
+        }
+        catch (WebDriverTimeoutException)
+        {
+            Console.WriteLine("❌ Timed out waiting for product cards to load.");
+            return false;
+        }
+    }
+}
 }
 
 
