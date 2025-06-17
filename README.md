@@ -23,20 +23,7 @@ The test performs the following steps:
 ---
 
 ## 🧱 Project Structure
-TelenorTestAutomation/
-│
-├── Pages/
-│ ├── HomePage.cs // Handles cookie, menu, and broadband navigation
-│ └── BroadbandPage.cs // Handles address entry, apartment selection, and product grid
-│
-├── Tests/
-│ └── BroadbandOrderTest.cs // Main NUnit test class
-│
-├── Utilities/
-│ └── DriverManager.cs // Manages singleton WebDriver instance
-│
-└── README.md // Project documentation
-
+<pre> ## 🧱 Project Structure ``` TelenorTestAutomation/ ├── Pages/ │ ├── HomePage.cs // Handles cookie, menu, and broadband navigation │ └── BroadbandPage.cs // Handles address entry, apartment selection, and product grid ├── Tests/ │ └── BroadbandOrderTest.cs // Main NUnit test class ├── Utilities/ │ └── DriverManager.cs // Manages singleton WebDriver instance └── README.md // Project documentation ``` </pre>
 
 
 ## 🚀 How to Run
@@ -51,6 +38,6 @@ dotnet test
 
 
 ## 💡 Future Improvements
-Add support for parallel execution.
-Cross-browser testing
-Reporting - Allure or Extended Reporting
+- Add support for parallel execution.
+- Cross-browser testing
+- Reporting - Allure or Extended Reporting
