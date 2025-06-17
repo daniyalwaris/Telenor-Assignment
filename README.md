@@ -23,7 +23,18 @@ The test performs the following steps:
 ---
 
 ## 🧱 Project Structure
-<pre> TelenorTestAutomation/ ├── Pages/ │ ├── HomePage.cs // Handles cookie, menu, and broadband navigation │ └── BroadbandPage.cs // Handles address entry, apartment selection, and product grid ├── Tests/ │ └── BroadbandOrderTest.cs // Main NUnit test class ├── Utilities/ │ └── DriverManager.cs // Manages singleton WebDriver instance └── README.md // Project documentation ``` </pre>
+```
+TelenorTestAutomation/
+├── Pages/
+│   ├── HomePage.cs            // Handles cookie, menu, and broadband navigation
+│   └── BroadbandPage.cs       // Handles address entry, apartment selection, and product grid
+├── Tests/
+│   └── BroadbandOrderTest.cs  // Main NUnit test class
+├── Utilities/
+│   └── DriverManager.cs       // Manages singleton WebDriver instance
+└── README.md                  // Project documentation
+```
+
 
 
 ## 🚀 How to Run
