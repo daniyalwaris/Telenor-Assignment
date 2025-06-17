@@ -1,4 +1,4 @@
-# Telenor.se Broadband Product Availability Test Automation
+# Broadband Product Availability Test Automation
 
 This purpose of this is to automates the broadband product availability flow on [Telenor.se], Where simulating a user's experience from landing on the homepage to selecting a broadband product based on address and apartment selection.
 
