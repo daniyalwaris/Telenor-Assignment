@@ -43,14 +43,14 @@ TelenorTestAutomation/
 dotnet test
 
 
-🧠 Design Considerations
-Reusable page objects: Designed to support future tests without rewriting logic.
-Robust selectors: Uses multiple elements locators that can handle layout changes.
-Keyboard interaction: Dropdowns and listboxes use Keys.ArrowDown and Keys.Enter where needed.
-Handles layout shifts like "Handla" vs "Produkter och tjänster".
+## 🧠 Design Considerations
+- Reusable page objects: Designed to support future tests without rewriting logic.
+- Robust selectors: Uses multiple elements locators that can handle layout changes.
+- Keyboard interaction: Dropdowns and listboxes use Keys.ArrowDown and Keys.Enter where needed.
+- Handles layout shifts like "Handla" vs "Produkter och tjänster".
 
 
-💡 Future Improvements (Optional)
+## 💡 Future Improvements
 Add support for parallel execution.
 Cross-browser testing
 Reporting - Allure or Extended Reporting
