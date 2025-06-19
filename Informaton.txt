@@ -1,0 +1,197 @@
+
+#########    Question Asked During technical interview.
+
+## 1. FluentWait (Flexible Wait)
+    -   More readable/reusable wait log
+
+
+-----------------------------------------------------------------
+## 2. Cross Browser:
+✅ Step 1: Accept Browser as a Parameter
+Modify your DriverManager.cs to initialize different browsers based on a configuration value or test parameter.
+
+public class DriverManager
+{
+    private static IWebDriver driver;
+
+    public static IWebDriver GetDriver(string browser = "chrome")
+    {
+        if (driver == null)
+        {
+            switch (browser.ToLower())
+            {
+                case "firefox":
+                    driver = new FirefoxDriver();
+                    break;
+
+                case "edge":
+                    driver = new EdgeDriver();
+                    break;
+
+                case "chrome":
+                default:
+                    driver = new ChromeDriver();
+                    break;
+            }
+
+            driver.Manage().Window.Maximize();
+        }
+
+        return driver;
+    }
+
+    public static void QuitDriver()
+    {
+        driver?.Quit();
+        driver = null;
+    }
+}
+
+
+
+
+✅ Step 2: Use NUnit TestCase for Multi-Browser Execution
+Update your test method to run with multiple browsers:
+
+
+[TestFixture]
+public class BroadbandOrderTest
+{
+    private IWebDriver driver;
+
+    [TearDown]
+    public void Teardown()
+    {
+        DriverManager.QuitDriver();
+    }
+
+    [TestCase("chrome")]
+    [TestCase("firefox")]
+    [TestCase("edge")]
+    public void TestBroadbandOrderFlow(string browser)
+    {
+        driver = DriverManager.GetDriver(browser);
+
+        var homePage = new HomePage(driver);
+        homePage.NavigateToBroadband();
+
+        var broadbandPage = new BroadbandPage(driver);
+        broadbandPage.EnterAddress("Dragonvägen 3-23B, Upplands Väsby");
+        broadbandPage.SelectRandomApartment();
+
+        Assert.IsTrue(broadbandPage.IsProductAvailable("Bredband via 5G"), "Product not available.");
+    }
+}
+
+
+✅ Step 3: Optional – Set Browser via AppSettings or CLI (Advanced)
+For more control (e.g. CI), read browser from a config file or command line:
+string browser = TestContext.Parameters.Get("browser", "chrome");
+
+
+✅ Step 4: Run All Browsers via CLI (Optional)
+You can run all three test cases (for each browser) via:
+dotnet test
+Or target only one using NUnit filters if needed:
+dotnet test --filter "TestCase=firefox"
+
+
+----------------------------------------------------------------------------------
+################     Parallel Execution 
+
+To implement threading (parallel execution) in your Selenium + NUnit test framework, especially for parallel cross-browser testing, you need to:
+
+✅ Step-by-Step: Parallel Test Execution with NUnit + Selenium
+1. Make WebDriver Thread-Safe
+Update your DriverManager.cs to use ThreadLocal<IWebDriver>:
+
+public class DriverManager
+{
+    private static ThreadLocal<IWebDriver> driver = new();
+
+    public static IWebDriver GetDriver(string browser = "chrome")
+    {
+        if (driver.Value == null)
+        {
+            switch (browser.ToLower())
+            {
+                case "firefox":
+                    driver.Value = new FirefoxDriver();
+                    break;
+
+                case "edge":
+                    driver.Value = new EdgeDriver();
+                    break;
+
+                case "chrome":
+                default:
+                    driver.Value = new ChromeDriver();
+                    break;
+            }
+
+            driver.Value.Manage().Window.Maximize();
+        }
+
+        return driver.Value;
+    }
+
+    public static void QuitDriver()
+    {
+        driver.Value?.Quit();
+        driver.Dispose();
+    }
+}
+✅ This ensures each thread gets its own WebDriver instance.
+
+2. Add [Parallelizable] and [TestCase]
+[TestFixture]
+[Parallelizable(ParallelScope.All)]
+public class BroadbandOrderTest
+{
+    private IWebDriver driver;
+
+    [TearDown]
+    public void Teardown()
+    {
+        DriverManager.QuitDriver();
+    }
+
+    [TestCase("chrome")]
+    [TestCase("firefox")]
+    [TestCase("edge")]
+    public void TestBroadbandOrderFlow(string browser)
+    {
+        driver = DriverManager.GetDriver(browser);
+
+        var homePage = new HomePage(driver);
+        homePage.NavigateToBroadband();
+
+        var broadbandPage = new BroadbandPage(driver);
+        broadbandPage.EnterAddress("Dragonvägen 3-23B, Upplands Väsby");
+        broadbandPage.SelectRandomApartment();
+
+        Assert.IsTrue(broadbandPage.IsProductAvailable("Bredband via 5G"), "Product not available.");
+    }
+}
+
+3. Add NUnit Config (Optional for Control)
+Create a file nunit.runner.json to limit max parallel threads:
+
+{
+  "numberOfTestWorkers": 3
+}
+💡 Default is number of processors on your machine. You can tune it manually.
+
+4. Run Tests
+dotnet test
+You'll see multiple browsers launch in parallel if supported by your system.
+
+🔄 Optional: Parallelize Different Test Classes
+Instead of multiple browsers, you can also split into:
+SearchAddressTest
+InvalidInputTest
+ProductValidationTest
+
+And annotate each with:
+[TestFixture]
+[Parallelizable(ParallelScope.Self)] // or All
